@@ -67,11 +67,8 @@ public class PredictorTest {
             in("exponential (translated)", -296,-284,-236,-44, 724), // x[n] = (2^n)^2 - 300
             
             // Fractions
-            in("fractions (simple)", 1/1d, 1/2d, 1/3d,     1/4d), // x[n] =  1/n
-            in("fractions", 1/2d, 2/3d, 3/4d, 4/5d, 5/6d,  6/7d), // x[n] = n / (n+1)
-                
-            // Special sequences
-            in("fibonacci", 1, 1, 2, 3, 5, 8, 13,  21)  // Fibonacci
+            in("fractions (simple)", 1/1d, 1/2d, 1/3d,          1/4d), // x[n] =  1/n
+            in("fractions", 1/2d, 2/3d, 3/4d, 4/5d, 5/6d, 6/7d, 7/8d), // x[n] = n / (n+1)
         });
     }
     
@@ -85,9 +82,7 @@ public class PredictorTest {
      */
     @Test
     public void runTest() throws NoPatternFoundException {
-        System.out.println("--- " + description);
         Predictor pred = new Predictor(values).init();
-        System.out.println(pred.getPattern());
         assertEquals(expected, pred.getNext(), COMPARE_ACCURACY);
     }
     

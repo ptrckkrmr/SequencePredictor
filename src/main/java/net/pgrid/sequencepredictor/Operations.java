@@ -85,7 +85,7 @@ public class Operations {
     }
     
     /**
-     * Creates a UnaryPredictOperation from the given BinaryOperators.
+     * Creates a UnaryPredictOperation from the given UnaryOperators.
      * @param desc    A description of the operator, for identification.
      * @param op      The operation itself
      * @param inverse The inverse of the operation, for constructing the next 

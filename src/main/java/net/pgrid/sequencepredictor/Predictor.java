@@ -41,7 +41,7 @@ public class Predictor {
      * This value is chosen so, that rounding errors can never cause the 
      * {@code fuzzyEq} method to return an incorrect value.
      */
-    public static final double FUZZY_EQ_THRESHOLD  = 1E-14;
+    public static final double FUZZY_EQ_THRESHOLD  = 1E-10;
     
     // Explicitly defined as LinkedList to allow O(1) tail access.
     private final LinkedList<Double> values;
@@ -111,15 +111,11 @@ public class Predictor {
             if (prev == null || operation.canApplyAfter(prev)) {
                 try {
                     List<Double> newValues = operation.apply(values);
-                    System.out.println("- Trying operation: " + operation.description() + " on " + values);
                     diffs = new Predictor(newValues).init(operation);
                     op = operation;
-                    System.out.println(">  Using " + operation.description());
                     return this;
                 } catch (NoPatternFoundException ex) {
                     // Ignored on purpose
-                    System.out.println(">  " + operation.description() + 
-                            " fails: " + ex.getMessage());
                 }
             }
         }
@@ -240,10 +236,7 @@ public class Predictor {
         if (input.stream().anyMatch(i -> !Double.isFinite(i))) {
             throw new NoPatternFoundException("Found non-real number in sequence");
         }
-        boolean result = input.stream()
-                .allMatch(i -> fuzzyEq(i, expected));
-        System.out.println("! Testing equality of " + input + " => " + result);
-        return result;
+        return input.stream().allMatch(i -> fuzzyEq(i, expected));
     }
     
     /**
