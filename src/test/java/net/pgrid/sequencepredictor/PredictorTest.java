@@ -13,8 +13,15 @@ import org.junit.runners.Parameterized.Parameter;
  * @author Patrick Kramer
  */
 @RunWith(Parameterized.class)
+@SuppressWarnings("PublicField") //< public fields allow Parameterized Runner to init fields.
 public class PredictorTest {
     
+    /**
+     * The accuracy used for comparing double values.
+     * 
+     * Two double values are considered equal if the distance between the two 
+     * values is less than the value of 
+     */
     public static final double COMPARE_ACCURACY = 1E-10;
     
     /**
@@ -72,13 +79,27 @@ public class PredictorTest {
         });
     }
     
-    @Parameter(0) public double[] values;
-    @Parameter(1) public double expected;
-    @Parameter(2) public String description;
+    /**
+     * The values to use as input for the Predictor.
+     */
+    @Parameter(0) 
+    public double[] values;
+    
+    /**
+     * The expected next value for the prediction.
+     */
+    @Parameter(1) 
+    public double expected;
+    
+    /**
+     * A description of this test case.
+     */
+    @Parameter(2) 
+    public String description;
     
     /**
      * Runs the test.
-     * @throws  NoPatternFoundException - Never
+     * @throws NoPatternFoundException - Never
      */
     @Test
     public void runTest() throws NoPatternFoundException {
