@@ -26,7 +26,9 @@ predictions for a certain sequence is through code. The following statement
 creates a Predictor object capable of making predictions (where `values` is a
 `List<Double>` or double varargs array):
 
-    Predictor predictor = new Predictor(values).init();
+```java
+Predictor predictor = new Predictor(values).init();
+```
 
 The `init()` method will return the Predictor for the sequence, or throw
 a `NoPatternFoundException` when no pattern is found. To get the next value in
