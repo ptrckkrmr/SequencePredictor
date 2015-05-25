@@ -27,7 +27,14 @@ import java.util.stream.StreamSupport;
  */
 public class Predictor {
     
+    /**
+     * Capacity of this {@code Predictor}'s internal StringBuilder.
+     * 
+     * The StringBuilder is used to construct String representations of the 
+     * detected pattern for debugging or analysis.
+     */
     public static final int STRINGBUILDER_CAPACITY = 50;
+    
     /**
      * The threshold for fuzzy equality testing of doubles.
      * 
@@ -41,16 +48,31 @@ public class Predictor {
     private PredictOperation op;
     private Predictor diffs = null;
     
+    /**
+     * Initializes a new Predictor using the given array of doubles.
+     * @param values - The values to use for this Predictor, not null.
+     */
     public Predictor(double... values) {
         this.values = new LinkedList<>();
-        Arrays.stream(values)
-              .mapToObj(Double::valueOf)
-              .forEach(this.values::add);
+        Arrays.stream(values).forEach(this.values::add);
     }
-    public Predictor(List<Double> ints) {
-        this.values = new LinkedList<>(ints);
+    
+    /**
+     * Initializes a new Predictor using the given List of doubles.
+     * @param values - The values to use for this Predictor, not null.
+     */
+    public Predictor(List<Double> values) {
+        this.values = new LinkedList<>(values);
     }
 
+    /**
+     * Sets the operation to use for this Predictor. 
+     * 
+     * This method is purely intended for constructing sequences. Calling this
+     * method after detecting a sequence (using {@code init()}) may cause the 
+     * detected pattern to be overridden.
+     * @param op The PredictOperation, not null.
+     */
     public void setOperation(PredictOperation op) {
         this.op = op;
     }
@@ -71,6 +93,13 @@ public class Predictor {
         return init(null);
     }
     
+    /**
+     * Initializes this Predictor using the given previous operation.
+     * @param prev The previous operation, can be null.
+     * @return     This Predictor after determining the pattern.
+     * @throws     NoPatternFoundException - If no pattern is found in the 
+     *             values of this Predictor.
+     */
     public Predictor init(PredictOperation prev) throws NoPatternFoundException {
         if (values.size() < 2) {
             throw new NoPatternFoundException("Not enough values to find pattern");
@@ -97,6 +126,10 @@ public class Predictor {
         throw new NoPatternFoundException("No Pattern can be found");
     }
     
+    /**
+     * An unmodifiable view of the values in this Predictor.
+     * @return The values in this Predictor as a read-only List.
+     */
     public List<Double> getComputed() {
         return Collections.unmodifiableList(values);
     }
@@ -109,16 +142,33 @@ public class Predictor {
         return diffs == null;
     }
     
+    /**
+     * Returns the underlying Predictor that predicts the computed List of 
+     * values.
+     * @return The underlying Predictor. 
+     */
     public Predictor getDiffs() {
         return diffs;
     }
     
+    /**
+     * Computes the next value and returns it.
+     * 
+     * Consecutive calls to this method will return new values in the sequence.
+     * @return The next value.
+     */
     public double getNext() {
         double next = computeNext();
         values.add(next);
         return next;
     }
     
+    /**
+     * Computes the next value and returns it.
+     * 
+     * Consecutive calls to this method will return the same value.
+     * @return The next value.
+     */
     protected double computeNext() {
         if (isConstant()) {
             return values.getLast();
@@ -130,11 +180,20 @@ public class Predictor {
     
     /**
      * Returns a symbolic representation of the Pattern found by this Predictor.
-     * @return 
+     * 
+     * The pattern consists of the atomic operations this Predictor performs.
+     * @return The pattern as a String.
      */
     public String getPattern() {
         return getPattern(new StringBuilder(STRINGBUILDER_CAPACITY)).toString();
     }
+    
+    /**
+     * Adds a symbolic representation of the Pattern found by this Predictor 
+     * to the given StringBuilder.
+     * @param b The StringBuilder to append the Pattern to.
+     * @return  The argument StringBuilder.
+     */
     public StringBuilder getPattern(StringBuilder b) {
         if (isConstant()) {
             b.append("()");
@@ -202,47 +261,30 @@ public class Predictor {
         return Math.abs(a - b) <= Math.abs(Math.max(a, b)) * FUZZY_EQ_THRESHOLD;
     }
     
+    /**
+     * Infinite Iterator class used to construct an infinite Stream.
+     * 
+     * @see Predictor.stream()
+     */
     private class PredictingIterator implements Iterator<Double> {
+        /**
+         * Returns if this Iterator has a next value.
+         * 
+         * Because this Iterator is infinite, this method always returns true.
+         * @return true.
+         */
         @Override
         public boolean hasNext() {
             return true;
         }
+        
+        /**
+         * Returns the next value in the infinite sequence.
+         * @return The next value.
+         */
         @Override
         public Double next() {
             return getNext();
-        }
-    }
-    
-    public static void main(String[] args) {
-        // Polynomials
-        // Note: a nth order function needs at least n+2 elements to be conclusive!
-        print("x^2",                    1,  4,  9, 16);
-        print("x^2 - 2x + 3",           2,  3,  6, 11);
-        print("x - 1",                  0,  1,  2    );
-        print("2x^3 - 5x^2 + 7x - 10", -6,  0, 20, 66, 150);
-        print("-3x + 12",               9,  6,  3);
-        
-        // Alternating series
-        print("x % 2",                  0,  1,  0,  1);
-        print("x + (x % 2)",            1,  3,  3,  5,  5);
-    }
-    
-    public static void print(String fun, double... input) {
-        assert input.length < 20 : "input too long";
-        System.out.println("### " + fun);
-        try {
-            Predictor pred = new Predictor(input).init();
-            System.out.println("> " + pred.getPattern());
-            Arrays.stream(input)
-                  .forEach(i -> System.out.print(i + "\t"));
-            System.out.print('>');
-            pred.stream()
-                  .limit(20 - input.length)
-                  .forEach(i -> System.out.print(i + "\t"));
-            System.out.println();
-            System.out.println();
-        } catch (NoPatternFoundException ex) {
-            System.out.println(ex.getClass().getSimpleName() + ": " + ex.getMessage());
         }
     }
 }
