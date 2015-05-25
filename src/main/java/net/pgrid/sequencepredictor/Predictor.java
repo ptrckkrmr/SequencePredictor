@@ -78,11 +78,12 @@ public class Predictor {
         if (isAllEqual(values)) {
             return this;
         }
-        
         for (PredictOperation operation : Operations.getAll()) {
             if (prev == null || operation.canApplyAfter(prev)) {
                 try {
-                    diffs = new Predictor(operation.apply(values)).init(operation);
+                    List<Double> newValues = operation.apply(values);
+                    System.out.println("- Trying operation: " + operation.description() + " on " + values);
+                    diffs = new Predictor(newValues).init(operation);
                     op = operation;
                     System.out.println(">  Using " + operation.description());
                     return this;
@@ -180,8 +181,10 @@ public class Predictor {
         if (input.stream().anyMatch(i -> !Double.isFinite(i))) {
             throw new NoPatternFoundException("Found non-real number in sequence");
         }
-        return input.stream()
+        boolean result = input.stream()
                 .allMatch(i -> fuzzyEq(i, expected));
+        System.out.println("! Testing equality of " + input + " => " + result);
+        return result;
     }
     
     /**
@@ -196,7 +199,7 @@ public class Predictor {
      * @return  True if they are (approximately) equal, false otherwise
      */
     public static boolean fuzzyEq(double a, double b) {
-        return Math.abs(a - b) <= Math.max(a, b) * FUZZY_EQ_THRESHOLD;
+        return Math.abs(a - b) <= Math.abs(Math.max(a, b)) * FUZZY_EQ_THRESHOLD;
     }
     
     private class PredictingIterator implements Iterator<Double> {
