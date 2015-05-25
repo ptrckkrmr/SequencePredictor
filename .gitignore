@@ -1,0 +1,9 @@
+# Maven output
+*.class
+target/
+
+# OS files
+[Tt]humbs.db
+desktop.ini
+.DS_Store
+
