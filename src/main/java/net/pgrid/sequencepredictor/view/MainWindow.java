@@ -13,7 +13,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import net.pgrid.sequencepredictor.NoPatternFoundException;
 import net.pgrid.sequencepredictor.Predictor;
 
 /**
@@ -49,7 +51,7 @@ public class MainWindow {
     private final JFrame window;
     
     private final JTextField input = new JTextField();
-    private final JLabel output = new JLabel();
+    private final JTextArea output = new JTextArea();
     
     private Predictor predictor = null;
     
@@ -77,15 +79,18 @@ public class MainWindow {
         gbc.fill = GridBagConstraints.NONE;
         this.window.add(computeButton, gbc);
         
+        output.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(output);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 1;
         this.window.add(scrollPane, gbc);
         
         JButton showMoreButton = new JButton("Show More");
         showMoreButton.addActionListener(e -> showMore());
         gbc.fill = GridBagConstraints.NONE;
+        gbc.weighty = 0;
         this.window.add(showMoreButton, gbc);
         
         this.window.setMinimumSize(new Dimension(300, 200));
@@ -95,7 +100,8 @@ public class MainWindow {
     }
     
     public List<Double> getInputValues() {
-        return Arrays.stream(input.getText().split(","))
+        try {
+            return Arrays.stream(input.getText().split(","))
                 .map(String::trim)
                 .map(Double::parseDouble)
                 .reduce(new LinkedList<>(), 
@@ -107,21 +113,40 @@ public class MainWindow {
                             a.addAll(b);
                             return a;
                         });
+        } catch (NumberFormatException ex) {
+            // The message of a NumberFormatException contains the token that could not be parsed.
+            output.setText("Part of the sequence cannot be parsed as a number:\n" + ex.getMessage());
+            return null;
+        }
     }
     
     public void compute() {
-        output.setText(null);
-        predictor = new Predictor(getInputValues());
-        showMore();
+        List<Double> inputValues = getInputValues();
+        if (inputValues != null) {
+            predictor = new Predictor(getInputValues());
+            try { 
+                predictor.init();
+                output.setText("");
+                showMore();
+            } catch (NoPatternFoundException ex) {
+                output.setText(ex.getMessage());
+                predictor = null;
+            }
+        }
     }
     
     /**
-     * Adds {@code RESULT_STEP_SIZE} 
+     * Adds {@code RESULT_STEP_SIZE} elements to the output pane.
      */
     public void showMore() {
-        predictor.stream()
-                .limit(RESULT_STEP_SIZE)
-                .forEach(this::addValue);
+        if (predictor == null) {
+            output.setText("No sequence computed or no pattern found in computed sequence.");
+        } else {
+            predictor.stream()
+                    .limit(RESULT_STEP_SIZE)
+                    .forEach(this::addValue);
+            output.setText(output.getText() + "\n");
+        }
     }
     
     /**
@@ -129,6 +154,11 @@ public class MainWindow {
      * @param value The value to add.
      */
     public void addValue(double value) {
-        output.setText(output.getText() + ", " + value);
+        String text = output.getText();
+        if (!text.isEmpty() && !text.endsWith("\n")) {
+            text += ", ";
+        }
+        
+        output.setText(text + value);
     }
 }
