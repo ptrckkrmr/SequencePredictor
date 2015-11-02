@@ -85,4 +85,9 @@ public interface UnaryPredictOperation extends
     public default Double apply(Double d) {
         return applyAsDouble(d);
     }
+
+    @Override
+    public default boolean canApplyAfter(PredictOperation op) {
+        return !op.getClass().equals(this.getClass());
+    }
 }

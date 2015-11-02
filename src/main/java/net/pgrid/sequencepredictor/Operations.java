@@ -47,7 +47,7 @@ public class Operations {
      * @return The BinaryPredictOperation
      */
     public static BinaryPredictOperation diff() {
-        return create("a-b",
+        return create("r{n} = u{n+1} - u{n}",
                       (a,b) -> b-a, 
                       (a,b) -> a+b);
     }
@@ -58,7 +58,7 @@ public class Operations {
      * @return The BinaryPredictOperation
      */
     public static BinaryPredictOperation divide() {
-        return create("a/b",
+        return create("r{n} = u{n+1} / u{n}",
                       (a,b) -> b/a, 
                       (a,b) -> a*b);
     }
@@ -72,9 +72,45 @@ public class Operations {
      * @return The UnaryPredictOperation
      */
     public static UnaryPredictOperation invert() {
-        return create("1/a",
+        return create("r{n} = 1 / u{n}",
                       d -> 1/d, 
                       d -> 1/d);
+    }
+    
+    public static UnaryPredictOperation alternate() {
+        return new UnaryPredictOperation() {
+
+            @Override
+            public double applyAsDouble(double d) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public double applyInverse(double d) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public Double apply(Double t) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public List<Double> apply(List<Double> input) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public Double computeNext(List<Double> original,
+                    List<Double> computed) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public String description() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
     }
     
     /**
@@ -88,13 +124,18 @@ public class Operations {
     public static BinaryPredictOperation create(String desc, 
             DoubleBinaryOperator op, DoubleBinaryOperator inverse) {
         return new BinaryPredictOperation() {
-            @Override public double applyAsDouble(double left, double right) {
+            @Override 
+            public double applyAsDouble(double left, double right) {
                 return op.applyAsDouble(left, right);
             }
-            @Override public double applyInverse(double left, double right) {
+            
+            @Override 
+            public double applyInverse(double left, double right) {
                 return inverse.applyAsDouble(left, right);
             }
-            @Override public String description() {
+            
+            @Override 
+            public String description() {
                 return desc;
             }
         };
@@ -111,17 +152,19 @@ public class Operations {
     public static UnaryPredictOperation create(String desc, 
             DoubleUnaryOperator op, DoubleUnaryOperator inverse) {
         return new UnaryPredictOperation() {
-            @Override public double applyAsDouble(double d) {
+            @Override 
+            public double applyAsDouble(double d) {
                 return op.applyAsDouble(d);
             }
-            @Override public double applyInverse(double d) {
+            
+            @Override
+            public double applyInverse(double d) {
                 return inverse.applyAsDouble(d);
             }
-            @Override public String description() {
+            
+            @Override 
+            public String description() {
                 return desc;
-            }
-            @Override public boolean canApplyAfter(PredictOperation op) {
-                return !op.description().equals(desc);
             }
         };
     }

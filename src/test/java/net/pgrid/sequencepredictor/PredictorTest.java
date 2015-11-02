@@ -36,7 +36,7 @@ public class PredictorTest {
      * The accuracy used for comparing double values.
      * 
      * Two double values are considered equal if the distance between the two 
-     * values is less than the value of 
+     * values is less than the value of this constant.
      */
     public static final double COMPARE_ACCURACY = 1E-10;
     
@@ -65,11 +65,11 @@ public class PredictorTest {
     @Parameterized.Parameters(name = "{index} - {2}")
     public static List<Object[]> parameters() {
         return Arrays.asList(new Object[][] {
-            // polynomials
+            // Polynomials
             in("constant",  4,4,4,                       4), // x[n] = 4
             in("linear (simple)",    1,2,3,4,            5), // x[n] = n
             in("linear",    2,4,6,8,                    10), // x[n] = 2n
-            in("incremental", 1,2,4,7,                  11), // x[n] = x[n-1] + (x[n-1] - x[n-2])
+            in("incremental", 1,2,4,7,                  11), // x[n] = x[n-1] + n - 1
             in("quadratic (simple)", 1,4,9,16,          25), // x[n] = n^2
             in("quadratic (translated)", 25,36,49,64,   81), // x[n] = (n+4)^2
             in("quadratic", 2,3,6,11,                   18), // x[n] = n^2 - 2n + 3
@@ -83,11 +83,14 @@ public class PredictorTest {
             in("alternating (0,1,0,-1)", 0,1,0,-1,0,1,  0), // x[n] = ... (?)
             
             // Exponential series
-            in("exponential", 2,4,8,                16), // x[n] = 2^n
-            in("exponential (negative)", -3,9,-27,  81), // x[n] = (-3)^n
+            in("exponential", 2,4,8,                      16), // x[n] = 2^n
+            in("exponential (negative)", -3,9,-27,        81), // x[n] = (-3)^n
+            in("exponential (scaled)", 8, 32, 128, 512, 2048), // x[n] = 2 * 4^n
+            in("exponential (translated)", -296,-284,-236,-44, 724), // x[n] = 2^(2n) - 300
             
-            // Combinations
-            in("exponential (translated)", -296,-284,-236,-44, 724), // x[n] = (2^n)^2 - 300
+            // Combined series
+            in("combined alt/lin positive",  5, -10, 15, -20, 25, -30, 35, -40), // x[n] = (-1)^(n+1) * 5n
+            in("combined alt/lin with 0", 0, 5, -10, 15, -20, 25, -30, 35), // x[n] = (-1)^n * 5n + 5
             
             // Fractions
             in("fractions (simple)", 1/1d, 1/2d, 1/3d,          1/4d), // x[n] =  1/n

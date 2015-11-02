@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -70,7 +71,8 @@ public class InputParser {
     public double parseFraction(String token) throws InvalidTokenException {
         Matcher matcher = FRACTION_PATTERN.matcher(token);
         if (matcher.find()) {
-            double integerPart = parseDecimal(matcher.group(2));
+            String integerString = matcher.group(2);
+            double integerPart = integerString == null ? 0 : parseDecimal(integerString);
             double nominator   = parseDecimal(matcher.group(3));
             double denominator = parseDecimal(matcher.group(4));
             
@@ -86,6 +88,8 @@ public class InputParser {
      * @return The List of tokens. 
      */
     public List<String> tokenize() {
-        return Arrays.asList(this.input.split("\\s*,\\s*"));
+        return Arrays.stream(this.input.split("\\s*,\\s*"))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 }

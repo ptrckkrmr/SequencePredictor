@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -15,6 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import net.pgrid.sequencepredictor.InputParser;
+import net.pgrid.sequencepredictor.InvalidTokenException;
 import net.pgrid.sequencepredictor.NoPatternFoundException;
 import net.pgrid.sequencepredictor.Predictor;
 
@@ -101,9 +102,8 @@ public class MainWindow {
     
     public List<Double> getInputValues() {
         try {
-            return Arrays.stream(input.getText().split(","))
-                .map(String::trim)
-                .map(Double::parseDouble)
+            InputParser parser = new InputParser(input.getText());
+            return parser.parse()
                 .reduce(new LinkedList<>(), 
                         (l, d) -> {
                             l.add(d);
@@ -113,9 +113,9 @@ public class MainWindow {
                             a.addAll(b);
                             return a;
                         });
-        } catch (NumberFormatException ex) {
+        } catch (InvalidTokenException ex) {
             // The message of a NumberFormatException contains the token that could not be parsed.
-            output.setText("Part of the sequence cannot be parsed as a number:\n" + ex.getMessage());
+            output.setText("Error parsing input:\n" + ex.getMessage());
             return null;
         }
     }

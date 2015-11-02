@@ -120,9 +120,11 @@ public class Predictor {
         if (values.size() < 2) {
             throw new NoPatternFoundException("Not enough values to find pattern");
         }
+        
         if (isAllEqual(values)) {
             return this;
         }
+        
         for (PredictOperation operation : Operations.getAll()) {
             if (prev == null || operation.canApplyAfter(prev)) {
                 try {

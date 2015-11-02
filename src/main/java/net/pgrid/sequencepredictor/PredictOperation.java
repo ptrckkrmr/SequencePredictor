@@ -57,6 +57,10 @@ public interface PredictOperation {
      */
     public Double computeNext(List<Double> original, List<Double> computed);
     
+    /**
+     * Returns a description of the operation that was applied.
+     * @return The description of this operation.
+     */
     public String description();
     
     public default boolean canApplyAfter(PredictOperation op) {
